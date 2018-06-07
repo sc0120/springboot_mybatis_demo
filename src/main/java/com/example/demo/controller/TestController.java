@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -45,25 +46,25 @@ public class TestController {
 
     @RequestMapping(value = "/session_set", method = RequestMethod.GET)
     public Map sessionSet(HttpSession session) throws Exception {
-        session.setAttribute("username","caomomowahaha");
-        Map<String,Object> ret = new HashMap<String,Object>();
-        ret.put("error_code",0);
-        ret.put("data",new HashMap<>());
+        session.setAttribute("username", "caomomowahaha");
+        Map<String, Object> ret = new HashMap<String, Object>();
+        ret.put("error_code", 0);
+        ret.put("data", new HashMap<>());
         return ret;
     }
 
     @RequestMapping(value = "/session_get", method = RequestMethod.GET)
     public Map sessionGet(HttpSession session) throws Exception {
         Object sessionValue = session.getAttribute("username");
-        Map<String,Object> ret = new HashMap<String,Object>();
-        ret.put("error_code",0);
-        ret.put("data",sessionValue);
+        Map<String, Object> ret = new HashMap<String, Object>();
+        ret.put("error_code", 0);
+        ret.put("data", sessionValue);
         return ret;
     }
 
 
     @RequestMapping(value = "/add_user", method = RequestMethod.GET)
-    public int addUser(@RequestParam(name = "username", required = true) String username,
+    public List addUser(@RequestParam(name = "username", required = true) String username,
                        @RequestParam(name = "nickname", required = true) String nickname) {
 //        User user = new User();
 //        user.setNickname(nickname);
@@ -72,7 +73,9 @@ public class TestController {
         UserEntity userEntity = new UserEntity();
         userEntity.setUserName("rcnihao");
         userEntity.setUserNickname("heheh12igei");
-        return rcUserMapper.adduser(userEntity);
+        List result = rcUserMapper.UserJoinTest(new Integer(5));
+//        List result = rcUserMapper.findAll();
+        return result;
 //        TestEntity testEntity = new TestEntity();
 //        testEntity.setUserId(5);
 //        testEntity.setAmount(11);
@@ -98,7 +101,7 @@ public class TestController {
             ret.put("data", new HashMap<String, Object>() {{
                 put("pageInfo", pageInfo);
             }});
-            redisRePository.set(cacheKey, ret,new Long(100));
+            redisRePository.set(cacheKey, ret, new Long(100));
             return ret;
         } else {
             Object data = redisRePository.get(cacheKey);

@@ -6,8 +6,32 @@
         <result column="user_name" property="userName" />
         <result column="user_nickname" property="userNickname" />
     </resultMap>
-    <insert id="adduser" parameterType="com.example.demo.Entity.UserEntity">
+    <resultMap id="testEntityMap" type="com.example.demo.Entity.TestEntity">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="amount" property="amount"  />
+        <result column="prop_info" property="propInfo"  />
+    </resultMap>
+
+    <!--插入新用户-->
+    <insert id="adduser" parameterType="com.example.demo.Entity.UserEntity" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO `rc_user` (user_name,user_nickname)
         VALUES (#{userName},#{userNickname})
     </insert>
+    <!--查询用户-->
+    <select id="findAll" resultMap="userEntityMap">
+        SELECT * FROM rc_user
+    </select>
+    <!--联合查询-->
+    <resultMap type="com.example.demo.Entity.UserTestEntityVO" id="UserTestEntityVO">
+        <id column="id" property="id" />
+        <result column="user_name" property="userName" />
+        <result column="user_nickname" property="userNickname" />
+        <collection property="test" javaType="java.util.List" resultMap="testEntityMap" />
+    </resultMap>
+    <select id="UserJoinTest" parameterType="java.lang.Integer" resultMap="UserTestEntityVO">
+        select u.*,t.amount from rc_user u left join rc_test t on t.user_id=u.id where u.id=#{userId}
+    </select>
+
+
 </mapper>
