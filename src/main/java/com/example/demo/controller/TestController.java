@@ -5,6 +5,7 @@ import com.example.demo.Entity.TestEntity;
 import com.example.demo.Entity.User;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.mapper.RcUserMapper;
+import com.example.demo.repository.RedisRePository;
 import com.example.demo.service.TestService;
 import com.example.demo.service.UserService;
 import com.github.pagehelper.PageHelper;
@@ -14,12 +15,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.*;
 
 
@@ -37,7 +41,26 @@ public class TestController {
     @Autowired
     private RcUserMapper rcUserMapper;
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisRePository redisRePository;
+
+    @RequestMapping(value = "/session_set", method = RequestMethod.GET)
+    public Map sessionSet(HttpSession session) throws Exception {
+        session.setAttribute("username","caomomowahaha");
+        Map<String,Object> ret = new HashMap<String,Object>();
+        ret.put("error_code",0);
+        ret.put("data",new HashMap<>());
+        return ret;
+    }
+
+    @RequestMapping(value = "/session_get", method = RequestMethod.GET)
+    public Map sessionGet(HttpSession session) throws Exception {
+        Object sessionValue = session.getAttribute("username");
+        Map<String,Object> ret = new HashMap<String,Object>();
+        ret.put("error_code",0);
+        ret.put("data",sessionValue);
+        return ret;
+    }
+
 
     @RequestMapping(value = "/add_user", method = RequestMethod.GET)
     public int addUser(@RequestParam(name = "username", required = true) String username,
@@ -63,9 +86,10 @@ public class TestController {
         Random random = new Random(System.currentTimeMillis());
         int value = random.nextInt(10);
         logger.info(String.valueOf(value));
-        boolean checkRedis = redisTemplate.hasKey("mybatis_test_cache");
+        String cacheKey = "mybatis_test_cache";
+        boolean checkRedis = redisRePository.exists(cacheKey);
         System.out.println(checkRedis);
-        if(!checkRedis) {
+        if (!checkRedis) {
             Map<String, Object> ret = new HashMap<String, Object>();
             PageHelper.startPage(page_num, page_size);
             List<User> list = userService.findAll();
@@ -74,12 +98,12 @@ public class TestController {
             ret.put("data", new HashMap<String, Object>() {{
                 put("pageInfo", pageInfo);
             }});
-            redisTemplate.opsForValue().set("mybatis_test_cache", JSON.toJSONString(ret),100);
+            redisRePository.set(cacheKey, ret,new Long(100));
             return ret;
-        }else {
-            String data = redisTemplate.opsForValue().get("mybatis_test_cache").toString();
+        } else {
+            Object data = redisRePository.get(cacheKey);
             System.out.println(data);
-            return (Map) JSON.parse(data);
+            return JSON.parseObject(data.toString());
         }
 
     }

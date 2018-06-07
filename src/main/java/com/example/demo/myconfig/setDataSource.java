@@ -1,5 +1,6 @@
 package com.example.demo.myconfig;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,7 +22,9 @@ public class setDataSource {
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.center")
     public DataSource setCenterDataSource(){
-        return DataSourceBuilder.create().build();
+        DruidDataSource druidDataSource = new DruidDataSource();
+        return  druidDataSource;
+//        return DataSourceBuilder.create().build();
     }
 
     @Bean(name = "centerJdbcTemplate")
