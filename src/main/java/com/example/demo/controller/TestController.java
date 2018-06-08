@@ -11,6 +11,9 @@ import com.example.demo.service.TestService;
 import com.example.demo.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +89,7 @@ public class TestController {
         int autoId = userEntity.getId();
         return CUtil.generateResponseMap(0, "SUCCESS", new HashMap<String, Object>() {{
             put("status", addUser);
-            put("autoId",autoId);
+            put("autoId", autoId);
         }});
 
     }
@@ -101,12 +104,12 @@ public class TestController {
             add(7);
             add(9);
         }};
-        if(ids != null){
+        if (ids != null) {
             findIds = Arrays.asList(ids.split(","));
         }
         //        List result = rcUserMapper.UserJoinTest(userId);
         List result = rcUserMapper.findAll(findIds);
-        return CUtil.generateResponseMap(0,"SUCCESS",result);
+        return CUtil.generateResponseMap(0, "SUCCESS", result);
     }
 
 
@@ -149,5 +152,7 @@ public class TestController {
         }
 
     }
+
+
 
 }
