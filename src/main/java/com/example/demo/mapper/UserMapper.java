@@ -2,6 +2,7 @@ package com.example.demo.mapper;
 
 import com.example.demo.Entity.User;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
  * Created by caoyixian on 2018/6/2.
  */
 @Mapper
+@Component(value = "UserMapper")
 public interface UserMapper {
 
     @Insert("INSERT INTO t_user(username,nickname) VALUES (#{username}, #{nickname}) ")

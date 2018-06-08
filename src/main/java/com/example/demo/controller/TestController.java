@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.example.demo.Entity.TestEntity;
 import com.example.demo.Entity.User;
 import com.example.demo.Entity.UserEntity;
+import com.example.demo.MyUtil.CUtil;
 import com.example.demo.mapper.RcUserMapper;
 import com.example.demo.repository.RedisRePository;
 import com.example.demo.service.TestService;
@@ -64,31 +65,69 @@ public class TestController {
 
 
     @RequestMapping(value = "/add_user", method = RequestMethod.GET)
-    public List addUser(@RequestParam(name = "username", required = true) String username,
-                       @RequestParam(name = "nickname", required = true) String nickname) {
+    public Map addUser(@RequestParam(name = "userName", required = true) String userName,
+                       @RequestParam(name = "userNickname", required = true) String userNickname) {
+        Random random = new Random(System.currentTimeMillis());
+        int value = random.nextInt(10);
+        logger.info(String.valueOf(value));
 //        User user = new User();
 //        user.setNickname(nickname);
 //        user.setUsername(username);
 //        return userService.addUser(user);
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserName("rcnihao");
-        userEntity.setUserNickname("heheh12igei");
-        List result = rcUserMapper.UserJoinTest(new Integer(5));
-//        List result = rcUserMapper.findAll();
-        return result;
 //        TestEntity testEntity = new TestEntity();
 //        testEntity.setUserId(5);
 //        testEntity.setAmount(11);
 //        testEntity.setPropInfo(String.format("this is %s",UUID.randomUUID().toString().replace("-","")));
 //        return testService.insert(testEntity);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUserName(userName);
+        userEntity.setUserNickname(userNickname + value);
+        int addUser = rcUserMapper.adduser(userEntity);
+        int autoId = userEntity.getId();
+        return CUtil.generateResponseMap(0, "SUCCESS", new HashMap<String, Object>() {{
+            put("status", addUser);
+            put("autoId",autoId);
+        }});
+
+    }
+
+    @RequestMapping(value = "find_all", method = RequestMethod.GET)
+    public Map findAll(@RequestParam(name = "userId", required = false) Integer userId,
+                       @RequestParam(name = "ids", required = false) String ids) throws Exception {
+        List findIds = new ArrayList() {{
+            add(1);
+            add(3);
+            add(5);
+            add(7);
+            add(9);
+        }};
+        if(ids != null){
+            findIds = Arrays.asList(ids.split(","));
+        }
+        //        List result = rcUserMapper.UserJoinTest(userId);
+        List result = rcUserMapper.findAll(findIds);
+        return CUtil.generateResponseMap(0,"SUCCESS",result);
+    }
+
+
+    @RequestMapping(value = "/find_one", method = RequestMethod.GET)
+    public Map findOne(@RequestParam(name = "id", required = false) Integer id,
+                       @RequestParam(name = "userName", required = false) String userName) throws Exception {
+        if (id == null && userName == null) {
+            return CUtil.generateResponseMap(1, "参数不完整", null);
+        }
+        UserEntity result = rcUserMapper.findOne(new HashMap() {{
+            put("id", id);
+            put("userName", userName);
+        }});
+        Map<String, Object> ret = CUtil.generateResponseMap(0, "SUCCESS", result);
+        return ret;
     }
 
     @RequestMapping(value = "/mybatis_test", method = RequestMethod.GET)
     public Map deleteUser(@RequestParam(name = "page_num", required = true) Integer page_num,
                           @RequestParam(name = "page_size", required = true) Integer page_size) {
-        Random random = new Random(System.currentTimeMillis());
-        int value = random.nextInt(10);
-        logger.info(String.valueOf(value));
+
         String cacheKey = "mybatis_test_cache";
         boolean checkRedis = redisRePository.exists(cacheKey);
         System.out.println(checkRedis);

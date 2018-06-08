@@ -6,9 +6,8 @@
         <result column="user_name" property="userName" />
         <result column="user_nickname" property="userNickname" />
     </resultMap>
-    <resultMap id="testEntityMap" type="com.example.demo.Entity.TestEntity">
+    <resultMap id="TestVOMap" type="com.example.demo.vo.TestVO">
         <id column="id" property="id" />
-        <result column="user_id" property="userId" />
         <result column="amount" property="amount"  />
         <result column="prop_info" property="propInfo"  />
     </resultMap>
@@ -19,17 +18,36 @@
         VALUES (#{userName},#{userNickname})
     </insert>
     <!--查询用户-->
-    <select id="findAll" resultMap="userEntityMap">
+    <select id="findAll" resultMap="userEntityMap" parameterType="java.util.List">
         SELECT * FROM rc_user
+        <where>
+            id in
+            <foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+    <!--查询单个用户-->
+    <select id="findOne" resultMap="userEntityMap" parameterType="java.util.Map">
+        SELECT * FROM rc_user
+        <where>
+            <if test="params.id != null and params.id != ''">
+                and id=#{params.id}
+            </if>
+            <if test="params.userName != null and params.userName!=''">
+                and user_name=#{params.userName}
+            </if>
+        </where>
+        limit 1
     </select>
     <!--联合查询-->
-    <resultMap type="com.example.demo.Entity.UserTestEntityVO" id="UserTestEntityVO">
+    <resultMap type="com.example.demo.vo.UserJoinTestVO" id="UserJoinTestVO">
         <id column="id" property="id" />
         <result column="user_name" property="userName" />
         <result column="user_nickname" property="userNickname" />
-        <collection property="test" javaType="java.util.List" resultMap="testEntityMap" />
+        <collection property="test" javaType="java.util.List" resultMap="TestVOMap" />
     </resultMap>
-    <select id="UserJoinTest" parameterType="java.lang.Integer" resultMap="UserTestEntityVO">
+    <select id="UserJoinTest" parameterType="java.lang.Integer" resultMap="UserJoinTestVO">
         select u.*,t.amount from rc_user u left join rc_test t on t.user_id=u.id where u.id=#{userId}
     </select>
 

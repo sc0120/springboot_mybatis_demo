@@ -1,7 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.Entity.User;
-import com.example.demo.Entity.UserJoinAmount;
+import com.example.demo.vo.UserJoinAmount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
